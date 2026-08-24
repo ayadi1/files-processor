@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/FilesProcessor.WebApi/FilesProcessor.WebApi.csproj" />
+  </Folder>
+</Solution>
