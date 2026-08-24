@@ -11,11 +11,11 @@ writing the code). Tick them off as you go.
 
 ## Phase 1 — Domain model
 
-- [ ] Create a `Domain/Entities` folder (or a separate class library) for entities.
-- [ ] Implement the `Resolution` and `FileType` enums (see `class-diagram.md`).
-- [ ] Implement the `File` entity.
-- [ ] Implement the `Variant` entity.
-- [ ] Decide on the relationship + navigation properties between `File` and `Variant`.
+- [X] Create a `Domain/Entities` folder (or a separate class library) for entities.
+- [X] Implement the `Resolution` and `FileType` enums (see `class-diagram.md`).
+- [X] Implement the `File` entity.
+- [X] Implement the `Variant` entity.
+- [X] Decide on the relationship + navigation properties between `File` and `Variant`.
 
 ## Phase 2 — Persistence
 
