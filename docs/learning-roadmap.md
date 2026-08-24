@@ -6,8 +6,8 @@ writing the code). Tick them off as you go.
 
 ## Phase 0 — Clean slate
 
-- [ ] Remove the default `WeatherForecast` sample from `Program.cs`.
-- [ ] Set up a basic health endpoint (`GET /health`) so you can verify the app runs.
+- [X] Remove the default `WeatherForecast` sample from `Program.cs`.
+- [X] Set up a basic health endpoint (`GET /health`) so you can verify the app runs.
 
 ## Phase 1 — Domain model
 
