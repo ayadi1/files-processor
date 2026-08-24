@@ -19,11 +19,11 @@ writing the code). Tick them off as you go.
 
 ## Phase 2 — Persistence
 
-- [ ] Choose a DB provider (start with SQLite for dev).
-- [ ] Add EF Core.
-- [ ] Create a `DbContext` with `Files` and `Variants` `DbSet`s.
-- [ ] Configure the entity mapping (one-to-many `File → Variants`).
-- [ ] Run a migration + create the database.
+- [X] Choose a DB provider (start with SQLite for dev).
+- [X] Add EF Core.
+- [X] Create a `DbContext` with `Files` and `Variants` `DbSet`s.
+- [X] Configure the entity mapping (one-to-many `File → Variants`).
+- [X] Run a migration + create the database.
 
 ## Phase 3 — Upload
 

@@ -1,6 +1,8 @@
+using FilesProcessor.WebApi.Domain.Common;
+
 namespace FilesProcessor.WebApi.Domain.Entities
 {
-    public class File
+    public class LocalFile : ISoftDelete
     {
         public Guid Id { get; set; }
         public string RealFileName { get; set; } = string.Empty;
