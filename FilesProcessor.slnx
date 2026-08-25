@@ -2,4 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/FilesProcessor.WebApi/FilesProcessor.WebApi.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/FilesProcessor.WebApi.Tests/FilesProcessor.WebApi.Tests.csproj" />
+  </Folder>
 </Solution>

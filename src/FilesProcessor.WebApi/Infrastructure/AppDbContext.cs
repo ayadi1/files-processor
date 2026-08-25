@@ -13,7 +13,10 @@ namespace FilesProcessor.WebApi.Infrastructure
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=app-local.db");
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlite("Data Source=app-local.db");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

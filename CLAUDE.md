@@ -47,9 +47,10 @@ better than silently writing code they wanted to write themselves.
   - Images → generate multiple resolutions (variants).
   - Other types → encryption at rest, decryption on download, and/or
     short-lived (expiring) download URLs.
-- **Stack:** ASP.NET Core, minimal APIs, OpenAPI. Storage, persistence, and
-  background-work mechanism are still **to be decided by the owner** — do not
-  pick them unilaterally; present options and let the owner choose.
+- **Stack:** ASP.NET Core, **controller-based APIs** (`[ApiController]` /
+  MVC-style controllers, *not* minimal APIs), OpenAPI. Storage, persistence,
+  and background-work mechanism are still **to be decided by the owner** — do
+  not pick them unilaterally; present options and let the owner choose.
 
 ## 3. Domain model reference
 
@@ -62,8 +63,8 @@ code, align names with that diagram unless the owner says otherwise.
 - Keep things minimal and incremental — the owner is learning, so prefer the
   simplest approach that works, then iterate.
 - Explain *why* a pattern is used, not just *what* to type.
-- Prefer modern .NET idioms (minimal APIs, file-scoped namespaces, nullable
-  reference types, `record` types where they fit, `await`/`Task`).
+- Prefer modern .NET idioms (controller-based APIs, file-scoped namespaces,
+  nullable reference types, `record` types where they fit, `await`/`Task`).
 - When the owner faces a fork (e.g. "Queue vs Channel vs Hangfire"), lay out
   the options with pros/cons and a recommendation, then stop and let them
   decide.

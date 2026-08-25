@@ -63,6 +63,11 @@ namespace FilesProcessor.WebApi.Infrastructure.Configuration
       builder.Property(f => f.IsDeleted)
         .IsRequired();
 
+      builder.Property(f => f.Status)
+        .HasConversion<string>()
+        .HasMaxLength(32)
+        .IsRequired();
+
       // Speed up queries that filter out soft-deleted rows.
       builder.HasIndex(f => f.IsDeleted);
       builder.HasIndex(f => f.UploadedBy);

@@ -27,8 +27,8 @@ writing the code). Tick them off as you go.
 
 ## Phase 3 — Upload
 
-- [ ] Define an `IFileStorage` abstraction (save / read / delete).
-- [ ] Implement a local-disk `IFileStorage`.
+- [X] Define an `IFileStorage` abstraction (save / read / delete).
+- [X] Implement a local-disk `IFileStorage`.
 - [ ] Create `POST /files` (upload) that saves the raw file + writes a `File`
       row with status `Pending`.
 - [ ] Return the file Id and status.

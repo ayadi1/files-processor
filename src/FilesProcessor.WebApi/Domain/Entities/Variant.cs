@@ -1,3 +1,5 @@
+using FilesProcessor.WebApi.Domain.Entities.Enums;
+
 namespace FilesProcessor.WebApi.Domain.Entities
 {
     public class Variant

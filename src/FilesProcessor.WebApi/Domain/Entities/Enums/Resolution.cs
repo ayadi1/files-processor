@@ -1,4 +1,4 @@
-namespace FilesProcessor.WebApi.Domain.Entities
+namespace FilesProcessor.WebApi.Domain.Entities.Enums
 {
     public enum Resolution
     {
