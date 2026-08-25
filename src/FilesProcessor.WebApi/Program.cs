@@ -6,6 +6,7 @@ using FilesProcessor.WebApi.Infrastructure.Storage;
 using FilesProcessor.WebApi.Storage;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using Serilog;
 
@@ -57,7 +58,16 @@ builder.Services.AddMediatR(cfg =>
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, context, _) =>
+    {
+        document.Info.Title = "Files Processor API";
+        document.Info.Description = "Upload files, generate variants, and download processed results.";
+        document.Info.Contact = new OpenApiContact { Name = "Oussama" };
+        return Task.CompletedTask;
+    });
+});
 
 var app = builder.Build();
 
