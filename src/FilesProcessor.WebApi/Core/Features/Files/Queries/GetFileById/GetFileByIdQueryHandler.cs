@@ -1,7 +1,3 @@
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using FilesProcessor.WebApi.Infrastructure;
 using FilesProcessor.WebApi.Storage;
 using MediatR;

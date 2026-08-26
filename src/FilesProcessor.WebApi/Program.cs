@@ -2,8 +2,7 @@ using FilesProcessor.WebApi.Core.Configurations;
 using FilesProcessor.WebApi.Core.Exceptions.Handlers;
 using FilesProcessor.WebApi.Core.Options.Upload;
 using FilesProcessor.WebApi.Infrastructure;
-using FilesProcessor.WebApi.Infrastructure.Storage;
-using FilesProcessor.WebApi.Storage;
+using Hangfire;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
@@ -22,10 +21,6 @@ builder.WebHost.ConfigureKestrel(k => k.Limits.MaxRequestBodySize = upload.MaxFi
 builder.Services
         .AddHealthChecks();
 
-// register database
-builder.Services
-        .AddDbContext<AppDbContext>();
-
 // register options with there validations
 builder.Services
         .AddOptions<UploadOptions>()
@@ -38,7 +33,7 @@ builder.Services
         .AddSingleton<IConfigureOptions<FormOptions>, ConfigureUploadFormLimits>();
 
 // register service
-builder.Services.AddSingleton<IFileStorage, LocalDiskFileStorage>();
+
 
 // register logs service
 builder.Host.UseSerilog((context, services, lc) => lc
@@ -69,7 +64,13 @@ builder.Services.AddOpenApi(options =>
     });
 });
 
+// register Infrastructure
+builder.Services.RegisterInfrastructure();
+
 var app = builder.Build();
+
+// Map Hangfire
+app.UseHangfireDashboard();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

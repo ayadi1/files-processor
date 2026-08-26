@@ -1,7 +1,4 @@
-using System.IO;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 using FilesProcessor.WebApi.Core.Options.Upload;
 using FilesProcessor.WebApi.Infrastructure.Storage;

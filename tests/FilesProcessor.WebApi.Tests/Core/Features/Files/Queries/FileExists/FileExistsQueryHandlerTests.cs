@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using FilesProcessor.WebApi.Core.Dtos.Files;
 using FilesProcessor.WebApi.Core.Features.Files.Queries.FileExists;
 using FilesProcessor.WebApi.Domain.Entities;

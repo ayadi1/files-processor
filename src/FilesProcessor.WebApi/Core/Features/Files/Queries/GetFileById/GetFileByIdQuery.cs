@@ -1,4 +1,3 @@
-using System;
 using MediatR;
 
 namespace FilesProcessor.WebApi.Core.Features.Files.Queries.GetFileById;

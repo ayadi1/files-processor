@@ -1,5 +1,111 @@
 root = true
 
-[*.cs]
+# All files
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = crlf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.{cs,vb}]
 csharp_style_namespace_declarations = file_scoped:suggestion
 dotnet_diagnostic.IDE0161.severity = warning
+# Sort using/Import directives with System.* appearing first
+dotnet_sort_system_directives_first = true
+# Avoid "this." or "Me." if not necessary
+dotnet_style_qualification_for_field = false:suggestion
+dotnet_style_qualification_for_property = false:suggestion
+dotnet_style_qualification_for_method = false:suggestion
+dotnet_style_qualification_for_event = false:suggestion
+
+# C# files
+[*.cs]
+# New line preferences (Allman style braces)
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_new_line_before_members_in_object_initializers = true
+csharp_new_line_before_members_in_anonymous_types = true
+# Report and remove unnecessary using directives
+dotnet_diagnostic.IDE0005.severity = warning
+
+# Indentation preferences
+csharp_indent_case_contents = true
+csharp_indent_switch_labels = true
+csharp_indent_labels = flush_left
+
+# Modifier preferences (Accessibility modifiers required)
+csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:suggestion
+dotnet_style_require_accessibility_modifiers = always:suggestion
+
+# 'var' preferences
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = false:suggestion
+
+# Expression-bodied members
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
+csharp_style_expression_bodied_constructors = false:silent
+csharp_style_expression_bodied_operators = false:silent
+csharp_style_expression_bodied_properties = true:suggestion
+csharp_style_expression_bodied_indexers = true:suggestion
+csharp_style_expression_bodied_accessors = true:suggestion
+
+# Pattern matching
+csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
+csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
+
+# Namespace preferences (File scoped namespaces for modern C#)
+csharp_style_namespace_declarations = file_scoped:warning
+
+# Null-checking preferences
+csharp_style_throw_expression = true:suggestion
+csharp_style_conditional_delegate_call = true:suggestion
+
+# --------------------------------------------------------
+# Naming Conventions
+# --------------------------------------------------------
+
+# Style Definitions
+dotnet_naming_style.pascal_case_style.capitalization             = pascal_case
+dotnet_naming_style.camel_case_style.capitalization              = camel_case
+dotnet_naming_style.i_prefix_style.capitalization                = pascal_case
+dotnet_naming_style.i_prefix_style.required_prefix               = I
+dotnet_naming_style.underscore_camel_case_style.capitalization   = camel_case
+dotnet_naming_style.underscore_camel_case_style.required_prefix  = _
+
+# Symbol Groups
+dotnet_naming_symbols.interface_symbols.applicable_kinds         = interface
+dotnet_naming_symbols.interface_symbols.applicable_accessibilities = *
+
+dotnet_naming_symbols.class_symbols.applicable_kinds             = class, struct, delegate, enum
+dotnet_naming_symbols.class_symbols.applicable_accessibilities   = *
+
+dotnet_naming_symbols.method_symbols.applicable_kinds            = method, property, event
+dotnet_naming_symbols.method_symbols.applicable_accessibilities  = *
+
+dotnet_naming_symbols.private_field_symbols.applicable_kinds     = field
+dotnet_naming_symbols.private_field_symbols.applicable_accessibilities = private
+
+# Rules
+# Interfaces must be PascalCase and start with an 'I'
+dotnet_naming_rule.interface_rule.symbols                        = interface_symbols
+dotnet_naming_rule.interface_rule.style                          = i_prefix_style
+dotnet_naming_rule.interface_rule.severity                       = warning
+
+# Classes, structs, methods, properties, and events must be PascalCase
+dotnet_naming_rule.class_rule.symbols                            = class_symbols
+dotnet_naming_rule.class_rule.style                              = pascal_case_style
+dotnet_naming_rule.class_rule.severity                           = warning
+
+dotnet_naming_rule.method_rule.symbols                           = method_symbols
+dotnet_naming_rule.method_rule.style                             = pascal_case_style
+dotnet_naming_rule.method_rule.severity                          = warning
+
+# Private fields must be _camelCase
+dotnet_naming_rule.private_field_rule.symbols                    = private_field_symbols
+dotnet_naming_rule.private_field_rule.style                      = underscore_camel_case_style
+dotnet_naming_rule.private_field_rule.severity                   = suggestion

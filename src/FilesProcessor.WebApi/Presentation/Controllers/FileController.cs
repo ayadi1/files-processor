@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FilesProcessor.WebApi.Core.Features.Files.Commands.DeleteFile;
 using FilesProcessor.WebApi.Core.Features.Files.Commands.UploadFile;
 using FilesProcessor.WebApi.Core.Features.Files.Queries.FileExists;

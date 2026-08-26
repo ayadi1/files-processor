@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FilesProcessor.WebApi.Storage;
 
 namespace FilesProcessor.WebApi.Tests.Mocks;

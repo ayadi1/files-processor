@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace FilesProcessor.WebApi.Core.Features.Files.Queries.GetFileById;
 
 /// <summary>
