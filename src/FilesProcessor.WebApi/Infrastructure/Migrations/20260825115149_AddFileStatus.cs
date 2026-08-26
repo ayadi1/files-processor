@@ -2,29 +2,28 @@
 
 #nullable disable
 
-namespace FilesProcessor.WebApi.Infrastructure.Migrations
+namespace FilesProcessor.WebApi.Infrastructure.Migrations;
+
+/// <inheritdoc />
+public partial class AddFileStatus : Migration
 {
     /// <inheritdoc />
-    public partial class AddFileStatus : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.AddColumn<string>(
-                name: "Status",
-                table: "Files",
-                type: "TEXT",
-                maxLength: 32,
-                nullable: false,
-                defaultValue: "");
-        }
+        migrationBuilder.AddColumn<string>(
+            name: "Status",
+            table: "Files",
+            type: "TEXT",
+            maxLength: 32,
+            nullable: false,
+            defaultValue: "");
+    }
 
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropColumn(
-                name: "Status",
-                table: "Files");
-        }
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.DropColumn(
+            name: "Status",
+            table: "Files");
     }
 }

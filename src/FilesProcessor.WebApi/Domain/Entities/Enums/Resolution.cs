@@ -1,12 +1,11 @@
-namespace FilesProcessor.WebApi.Domain.Entities.Enums
+namespace FilesProcessor.WebApi.Domain.Entities.Enums;
+
+public enum Resolution
 {
-    public enum Resolution
-    {
-        Original,
-        Thumbnail,
-        Small,
-        Medium,
-        Large,
-        ExtraLarge
-    }
+    Original,
+    Thumbnail,
+    Small,
+    Medium,
+    Large,
+    ExtraLarge
 }
