@@ -17,12 +17,17 @@ public static class RegisterServices
             .AddDbContext<AppDbContext>();
 
         // add infra service
-        services.AddSingleton<IFileProcessor, FileProcessor>();
+        services.AddScoped<IFileProcessor, FileProcessor>();
         services.AddSingleton<IFileStorage, LocalDiskFileStorage>();
         services.AddScoped<IProcessingQueue, HangfireProcessingQueue>();
 
         // register Hangfire services
-        services.AddHangfire(c => c.UseSQLiteStorage("hangfire.db"));
+        services.AddHangfire(c =>
+            c.UseSQLiteStorage("hangfire.db")
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+        );
         services.AddHangfireServer();
 
         return services;

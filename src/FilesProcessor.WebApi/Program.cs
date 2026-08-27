@@ -32,8 +32,6 @@ builder.Services
 builder.Services
         .AddSingleton<IConfigureOptions<FormOptions>, ConfigureUploadFormLimits>();
 
-// register service
-
 
 // register logs service
 builder.Host.UseSerilog((context, services, lc) => lc

@@ -482,3 +482,6 @@ $RECYCLE.BIN/
 *.swp
 
 app-local.db
+hangfire.db
+hangfire.db-*
+uploads

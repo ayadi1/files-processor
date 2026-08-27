@@ -50,7 +50,8 @@ public class UploadFileCommandHandlerTests : IDisposable
     {
         // Arrange
         var fake = new FakeFileStorage();
-        var sut = new UploadFileCommandHandler(_db, fake, NullLogger<UploadFileCommandHandler>.Instance);
+        var queue = new FakeProcessingQueue();
+        var sut = new UploadFileCommandHandler(_db, fake, queue, NullLogger<UploadFileCommandHandler>.Instance);
 
         var formFile = GetFormFile();
 
@@ -60,6 +61,9 @@ public class UploadFileCommandHandlerTests : IDisposable
         // result
         Assert.NotEqual(Guid.Empty, result.Id);
         Assert.Equal("Pending", result.Status);
+
+        // processing job was enqueued for the new file
+        Assert.Contains(result.Id, queue.EnqueuedFileIds);
 
         // Assert
         var entity = await _db.Files.FindAsync(result.Id);
@@ -77,7 +81,8 @@ public class UploadFileCommandHandlerTests : IDisposable
         var fake = new FakeFileStorage();
         var throwingDb = new ThrowingSaveContext(
             new DbContextOptionsBuilder<AppDbContext>().UseSqlite(_connection).Options);
-        var sut = new UploadFileCommandHandler(throwingDb, fake,
+        var queue = new FakeProcessingQueue();
+        var sut = new UploadFileCommandHandler(throwingDb, fake, queue,
             NullLogger<UploadFileCommandHandler>.Instance);
 
         // Assert
@@ -89,6 +94,8 @@ public class UploadFileCommandHandlerTests : IDisposable
         Assert.NotEmpty(fake.LastSavedKey);
         // ...and was cleaned up (compensation)
         Assert.Contains(fake.LastSavedKey, fake.DeletedKeys);
+        // ...and no processing job was enqueued
+        Assert.Empty(queue.EnqueuedFileIds);
     }
 
     [Fact]
@@ -96,7 +103,8 @@ public class UploadFileCommandHandlerTests : IDisposable
     {
         // Arrange
         var fake = new FakeFileStorage();
-        var sut = new UploadFileCommandHandler(_db, fake,
+        var queue = new FakeProcessingQueue();
+        var sut = new UploadFileCommandHandler(_db, fake, queue,
             NullLogger<UploadFileCommandHandler>.Instance);
 
         var bytes = Encoding.UTF8.GetBytes("hello world");
@@ -117,10 +125,4 @@ public class UploadFileCommandHandlerTests : IDisposable
         var entity = await _db.Files.FindAsync(result.Id);
         Assert.Equal(expected, entity!.Checksum);
     }
-}
-
-sealed class ThrowingSaveContext(DbContextOptions<AppDbContext> o) : AppDbContext(o)
-{
-    public override Task<int> SaveChangesAsync(CancellationToken ct = default)
-        => throw new InvalidOperationException("simulated DB failure");
 }
