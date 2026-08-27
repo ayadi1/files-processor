@@ -1,4 +1,4 @@
-# Architecture & Feature Plan
+****# Architecture & Feature Plan
 
 This document describes the **intended** architecture and feature set. It is a
 guide for the owner to build from — not a spec for an AI to implement. Items

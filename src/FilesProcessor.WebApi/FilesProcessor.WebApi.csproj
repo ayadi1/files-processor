@@ -21,6 +21,7 @@
     <PackageReference Include="Microsoft.OpenApi" />
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="MediatR" />
+    <PackageReference Include="SixLabors.ImageSharp" />
   </ItemGroup>
 
 </Project>

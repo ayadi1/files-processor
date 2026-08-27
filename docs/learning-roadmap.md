@@ -35,7 +35,7 @@ writing the code). Tick them off as you go.
 
 ## Phase 4 — Background processing
 
-- [ ] Pick a background-work mechanism (see `architecture.md`).
+- [X] Pick a background-work mechanism (see `architecture.md`).
 - [ ] Implement a worker that picks up `Pending` files.
 - [ ] Implement the **image** pipeline: create a `Variant` per `Resolution`.
 - [ ] Update file status to `Ready` (or `Failed`).
