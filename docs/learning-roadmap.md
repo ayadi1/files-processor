@@ -36,23 +36,30 @@ writing the code). Tick them off as you go.
 ## Phase 4 — Background processing
 
 - [X] Pick a background-work mechanism (see `architecture.md`).
-- [ ] Implement a worker that picks up `Pending` files.
-- [ ] Implement the **image** pipeline: create a `Variant` per `Resolution`.
-- [ ] Update file status to `Ready` (or `Failed`).
+- [X] Implement a worker that picks up `Pending` files.
+- [X] Implement the **image** pipeline: create a `Variant` per `Resolution`.
+- [X] Update file status to `Ready` (or `Failed`).
 
 ## Phase 5 — Download
 
-- [ ] Implement `GET /files/{id}` that streams the original (or a variant) back.
+- [X] Implement `GET /files/{id}` that streams the original back
+      (`FileStreamResult` in `FileController.Download`).
+- [X] Add variant downloads: stream a specific `Resolution` variant instead of
+      the original (e.g. `GET /files/{id}?resolution=Medium`).
 - [ ] Add **short-lived download URLs** (choose a strategy).
 - [ ] For non-image types: encrypt at rest, decrypt on download.
 
 ## Phase 6 — Hardening (the "lots of requests" part)
 
-- [ ] Streaming uploads/downloads so files aren't loaded into memory.
+- [ ] Streaming **uploads**: currently `IFormFile` buffers the request (the
+      handler also opens the stream twice — checksum + save). Downloads already
+      stream via `FileStreamResult`.
 - [ ] Bounded queue / back-pressure on the background worker.
 - [ ] Rate limiting on the upload endpoint.
-- [ ] Retries + dead-letter for failed jobs.
-- [ ] Structured logging + metrics.
+- [ ] Retries + dead-letter for failed jobs. (Hangfire already retries by
+      default — the open part is configuring it + dead-letter handling.)
+- [X] Structured logging (Serilog with message placeholders).
+- [ ] Metrics (e.g. request duration, upload size, job success/failure counts).
 
 ## How to use an AI for each step
 

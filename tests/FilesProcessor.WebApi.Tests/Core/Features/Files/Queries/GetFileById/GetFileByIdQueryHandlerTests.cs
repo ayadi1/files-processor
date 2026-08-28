@@ -83,6 +83,67 @@ public class GetFileByIdQueryHandlerTests : IDisposable
             () => sut.Handle(new GetFileByIdQuery(Guid.NewGuid()), CancellationToken.None));
     }
 
+    private async Task<Variant> SeedVariantAsync(LocalFile file, Resolution resolution, string storageKey, long size = 7)
+    {
+        var variant = new Variant
+        {
+            Id = Guid.CreateVersion7(),
+            File = file,
+            FileId = file.Id,
+            Resolution = resolution,
+            Width = 150,
+            Height = 150,
+            Size = size,
+            FilePath = storageKey,
+            CreatedAt = DateTime.Now
+        };
+        file.Variants ??= [];
+        file.Variants.Add(variant);
+        await _db.SaveChangesAsync(CancellationToken.None);
+        return variant;
+    }
+
+    [Fact]
+    public async Task Handle_streams_requested_variant_with_variant_metadata_when_it_exists()
+    {
+        // Arrange
+        var fake = new FakeFileStorage();
+        await fake.SaveAsync(new MemoryStream(Encoding.UTF8.GetBytes("original-bytes")), "photo.png", CancellationToken.None);
+        var seeded = await SeedFileAsync(fake.LastSavedKey);
+
+        await fake.SaveAsync(new MemoryStream(Encoding.UTF8.GetBytes("thumbnail-bytes")), "thumbnail.jpg", CancellationToken.None);
+        var thumbnailKey = fake.LastSavedKey;
+        await SeedVariantAsync(seeded, Resolution.Thumbnail, thumbnailKey, size: 3);
+
+        var sut = new GetFileByIdQueryHandler(_db, fake, NullLogger<GetFileByIdQueryHandler>.Instance);
+
+        // Act
+        var result = await sut.Handle(new GetFileByIdQuery(seeded.Id, Resolution.Thumbnail), CancellationToken.None);
+
+        // Assert — streams the variant's content, not the original's
+        await using var stream = result.Content;
+        using var reader = new StreamReader(stream);
+        Assert.Equal("thumbnail-bytes", await reader.ReadToEndAsync());
+        Assert.Equal(3, result.Size);
+        Assert.Equal(seeded.RealFileName, result.FileName);
+        Assert.Equal(seeded.MimeTime, result.ContentType);
+    }
+
+    [Fact]
+    public async Task Handle_throws_filenotfound_when_requested_variant_does_not_exist()
+    {
+        // Arrange — file exists but has no variants generated yet
+        var fake = new FakeFileStorage();
+        await fake.SaveAsync(new MemoryStream(Encoding.UTF8.GetBytes("original-bytes")), "photo.png", CancellationToken.None);
+        var seeded = await SeedFileAsync(fake.LastSavedKey);
+
+        var sut = new GetFileByIdQueryHandler(_db, fake, NullLogger<GetFileByIdQueryHandler>.Instance);
+
+        // Act + Assert — missing variant maps to 404, same as a missing file
+        await Assert.ThrowsAsync<FileNotFoundException>(
+            () => sut.Handle(new GetFileByIdQuery(seeded.Id, Resolution.Medium), CancellationToken.None));
+    }
+
     [Fact]
     public async Task Handle_throws_filenotfound_when_file_is_soft_deleted()
     {

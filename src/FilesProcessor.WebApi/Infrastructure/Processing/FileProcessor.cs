@@ -54,8 +54,9 @@ public class FileProcessor(AppDbContext appDbContext, IOptions<UploadOptions> op
 
             foreach (var resolution in resolutions)
             {
-                var variantPath = BuildVariantPath(fileEntity, resolution.Key);
-                Directory.CreateDirectory(Path.GetDirectoryName(variantPath)!);
+                var variantKey = BuildVariantKey(fileEntity, resolution.Key);
+                var fullPath = Path.Combine(_options.RootPath, variantKey);
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
                 using var variant = baseImage.Clone(x => x.Resize(new ResizeOptions()
                 {
                     Size = new Size()
@@ -65,7 +66,7 @@ public class FileProcessor(AppDbContext appDbContext, IOptions<UploadOptions> op
                     },
                     Mode = ResizeMode.Max
                 }));
-                await variant.SaveAsJpegAsync(variantPath);
+                await variant.SaveAsJpegAsync(fullPath);
                 var variantEntity = new Variant
                 {
                     Id = Guid.CreateVersion7(),
@@ -74,13 +75,13 @@ public class FileProcessor(AppDbContext appDbContext, IOptions<UploadOptions> op
                     Resolution = resolution.Key,
                     Width = variant.Width,
                     Height = variant.Height,
-                    Size = new FileInfo(variantPath).Length,
-                    FilePath = variantPath,
+                    Size = new FileInfo(fullPath).Length,
+                    FilePath = variantKey,
                     CreatedAt = DateTime.Now
                 };
                 fileEntity.Variants ??= new List<Variant>();
                 fileEntity.Variants.Add(variantEntity);
-                logger.LogDebug("Variant {Resolution} written to {VariantPath} ({Width}x{Height}", resolution.Key, variantPath, variant.Width, variant.Height);
+                logger.LogDebug("Variant {Resolution} written to {VariantPath} ({Width}x{Height}", resolution.Key, fullPath, variant.Width, variant.Height);
             }
 
             fileEntity.Status = FileStatus.Ready;
@@ -96,9 +97,9 @@ public class FileProcessor(AppDbContext appDbContext, IOptions<UploadOptions> op
         }
     }
 
-    private string BuildVariantPath(LocalFile fileEntity, Resolution resolution)
+    private string BuildVariantKey(LocalFile fileEntity, Resolution resolution)
     {
         string fileName = $"{resolution}.jpg";
-        return Path.Combine(_options.RootPath, fileEntity.Id.ToString(), fileName);
+        return Path.Combine(fileEntity.Id.ToString(), fileName);
     }
 }

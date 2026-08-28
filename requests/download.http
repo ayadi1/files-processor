@@ -1,0 +1,49 @@
+@host = http://localhost:5092
+@id = 01a0481c-b0cf-7877-9537-354ad5a67244
+
+### 0. Upload a file first (paste the returned id into @id above)
+POST {{host}}/api/file
+Content-Type: multipart/form-data; boundary=----Boundary
+
+------Boundary
+Content-Disposition: form-data; name="file"; filename="sample.png"
+Content-Type: image/png
+
+< ./../uploads/2026/08/25/01a039cd4c207291af6be0f9ce5e324c.png
+------Boundary--
+
+### 1. Download — no resolution param (defaults to null)
+GET {{host}}/api/file/{{id}}
+
+### 2. Download — resolution=original (case-insensitive enum name)
+GET {{host}}/api/file/{{id}}?resolution=original
+
+### 3. Download — resolution=thumbnail
+GET {{host}}/api/file/{{id}}?resolution=thumbnail
+
+### 4. Download — resolution=small
+GET {{host}}/api/file/{{id}}?resolution=small
+
+### 5. Download — resolution=medium
+GET {{host}}/api/file/{{id}}?resolution=medium
+
+### 6. Download — resolution=large
+GET {{host}}/api/file/{{id}}?resolution=large
+
+### 7. Download — resolution=extraLarge
+GET {{host}}/api/file/{{id}}?resolution=extraLarge
+
+### 8. Download — resolution by numeric value (2 = Small)
+GET {{host}}/api/file/{{id}}?resolution=2
+
+### 9. Download — invalid resolution string (should 400)
+GET {{host}}/api/file/{{id}}?resolution=huge
+
+### 10. Download — non-guid id (should 400 from route constraint)
+GET {{host}}/api/file/not-a-guid
+
+### 11. Download — well-formed guid that doesn't exist (should 404)
+GET {{host}}/api/file/99999999-9999-9999-9999-999999999999
+
+### 12. Exists check — HEAD (200 or 404, no body)
+HEAD {{host}}/api/file/{{id}}

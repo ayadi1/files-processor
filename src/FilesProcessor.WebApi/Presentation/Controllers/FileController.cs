@@ -3,6 +3,7 @@ using FilesProcessor.WebApi.Core.Features.Files.Commands.UploadFile;
 using FilesProcessor.WebApi.Core.Features.Files.Queries.FileExists;
 using FilesProcessor.WebApi.Core.Features.Files.Queries.GetFileById;
 using FilesProcessor.WebApi.Core.Options.Upload;
+using FilesProcessor.WebApi.Domain.Entities.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -14,7 +15,7 @@ namespace FilesProcessor.WebApi.Presentation.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class FileController(ISender sender, IOptions<UploadOptions> options) : ControllerBase
+public class FileController(ISender sender, IOptions<UploadOptions> options, ILogger<FileController> logger) : ControllerBase
 {
     private readonly UploadOptions _options = options.Value;
 
@@ -60,17 +61,19 @@ public class FileController(ISender sender, IOptions<UploadOptions> options) : C
     }
 
     /// <summary>
-    /// Downloads a file by its identifier.
+    /// Downloads a file by its identifier and resolution.
     /// </summary>
+    /// <param name="resolution"></param>
     /// <param name="id">The file identifier.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The file content with its original name and content type.</returns>
     /// <response code="200">The file content as a stream.</response>
     /// <response code="404">No file with this id exists.</response>
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> Download(Guid id, CancellationToken ct)
+    public async Task<IActionResult> Download([FromQuery] Resolution? resolution, Guid id, CancellationToken ct)
     {
-        var result = await sender.Send(new GetFileByIdQuery(id), ct);
+        logger.LogInformation("resolution {s}", resolution);
+        var result = await sender.Send(new GetFileByIdQuery(id, resolution), ct);
         return new FileStreamResult(result.Content, result.ContentType)
         {
             FileDownloadName = result.FileName,
