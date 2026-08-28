@@ -2,4 +2,4 @@ using MediatR;
 
 namespace FilesProcessor.WebApi.Core.Features.Files.Commands.UploadFile;
 
-public record UploadFileCommand(IFormFile File) : IRequest<UploadFileResult>;
+public record UploadFileCommand(Stream Content, string FileName, string ContentType) : IRequest<UploadFileResult>;

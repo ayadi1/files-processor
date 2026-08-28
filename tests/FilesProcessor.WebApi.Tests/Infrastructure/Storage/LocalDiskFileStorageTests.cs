@@ -54,9 +54,11 @@ public sealed class LocalDiskFileStorageTests : IDisposable
     {
         var content = new MemoryStream(Encoding.UTF8.GetBytes("hello world"));
 
-        var key = await _sut.SaveAsync(content, "photo.png", CancellationToken.None);
+        var (key, checksum, size) = await _sut.SaveAsync(content, "photo.png", CancellationToken.None);
 
         Assert.False(string.IsNullOrEmpty(key));
+        Assert.False(string.IsNullOrEmpty(checksum));
+        Assert.Equal(content.Length, size);
         var fullPath = Path.Combine(_rootPath, key);
         Assert.True(File.Exists(fullPath));
         Assert.Equal("hello world", await File.ReadAllTextAsync(fullPath));
@@ -67,7 +69,7 @@ public sealed class LocalDiskFileStorageTests : IDisposable
     [Fact]
     public async Task ExistsAsync_is_true_after_save_and_false_for_unknown_key()
     {
-        var key = await _sut.SaveAsync(
+        var (key, _, _) = await _sut.SaveAsync(
             new MemoryStream(Encoding.UTF8.GetBytes("data")), "f.bin", CancellationToken.None);
 
         Assert.True(await _sut.ExistsAsync(key, CancellationToken.None));
@@ -80,7 +82,7 @@ public sealed class LocalDiskFileStorageTests : IDisposable
     public async Task ReadAsync_returns_stream_with_the_saved_bytes()
     {
         var bytes = Encoding.UTF8.GetBytes("the quick brown fox");
-        var key = await _sut.SaveAsync(new MemoryStream(bytes), "f.txt", CancellationToken.None);
+        var (key, _, _) = await _sut.SaveAsync(new MemoryStream(bytes), "f.txt", CancellationToken.None);
 
         await using var stream = await _sut.ReadAsync(key, CancellationToken.None);
         using var ms = new MemoryStream();
@@ -94,7 +96,7 @@ public sealed class LocalDiskFileStorageTests : IDisposable
     [Fact]
     public async Task DeleteAsync_removes_file_and_is_idempotent()
     {
-        var key = await _sut.SaveAsync(
+        var (key, _, _) = await _sut.SaveAsync(
             new MemoryStream(Encoding.UTF8.GetBytes("x")), "f.dat", CancellationToken.None);
         var fullPath = Path.Combine(_rootPath, key);
 

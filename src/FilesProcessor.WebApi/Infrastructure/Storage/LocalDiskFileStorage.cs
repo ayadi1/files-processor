@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using FilesProcessor.WebApi.Core.Exceptions;
 using FilesProcessor.WebApi.Core.Options.Upload;
 using FilesProcessor.WebApi.Storage;
@@ -60,7 +61,7 @@ public class LocalDiskFileStorage(IOptions<UploadOptions> options, ILogger<Local
         }
     }
 
-    public async Task<string> SaveAsync(Stream content, string fileName, CancellationToken ct)
+    public async Task<FileSaveResult> SaveAsync(Stream content, string fileName, CancellationToken ct)
     {
         var now = DateTime.UtcNow;
         var fileFolderPath = $"{now:yyyy/MM/dd}";
@@ -77,6 +78,7 @@ public class LocalDiskFileStorage(IOptions<UploadOptions> options, ILogger<Local
         {
             await using var fs = new FileStream(fullPath, FileMode.CreateNew, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true);
             var buffer = new byte[81920]; // 80 KiB — same default CopyToAsync uses
+            using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
             long written = 0;
             int read;
             while ((read = await content.ReadAsync(buffer, ct)) > 0)
@@ -88,7 +90,11 @@ public class LocalDiskFileStorage(IOptions<UploadOptions> options, ILogger<Local
                 }
 
                 await fs.WriteAsync(buffer.AsMemory(0, read), ct);
+                hash.AppendData(buffer, 0, read);
             }
+
+            var checksum = Convert.ToHexString(hash.GetHashAndReset()).ToLowerInvariant();
+            return new FileSaveResult(StorageKey, checksum, written);
         }
         catch (Exception ex)
         {
@@ -96,7 +102,5 @@ public class LocalDiskFileStorage(IOptions<UploadOptions> options, ILogger<Local
             try { File.Delete(fullPath); } catch { }
             throw;
         }
-
-        return StorageKey;
     }
 }

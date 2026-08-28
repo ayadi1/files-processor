@@ -10,7 +10,7 @@ public interface IFileStorage
     /// <param name="fileName"></param>
     /// <param name="ct"></param>
     /// <returns></returns>
-    Task<string> SaveAsync(Stream content, string fileName, CancellationToken ct);
+    Task<FileSaveResult> SaveAsync(Stream content, string fileName, CancellationToken ct);
 
     /// <summary>
     /// Opens the stored file for reading. Caller owns + disposes the stream.

@@ -4,7 +4,6 @@ using FilesProcessor.WebApi.Domain.Entities;
 using FilesProcessor.WebApi.Domain.Entities.Enums;
 using FilesProcessor.WebApi.Infrastructure;
 using FilesProcessor.WebApi.Storage;
-using FilesProcessor.WebApi.Utils;
 using MediatR;
 
 namespace FilesProcessor.WebApi.Core.Features.Files.Commands.UploadFile;
@@ -17,19 +16,19 @@ public class UploadFileCommandHandler(AppDbContext appDbContext, IFileStorage fi
         try
         {
             // 1. stream request.File to storage -> get storage path
-            var checksum = await ChecksumHelper.ComputeChecksumAsync(request.File.OpenReadStream(), cancellationToken);
-            storageKey = await fileStorage.SaveAsync(request.File.OpenReadStream(), request.File.FileName, cancellationToken);
+            var saved = await fileStorage.SaveAsync(request.Content, request.FileName, cancellationToken);
+            storageKey = saved.StorageKey;
 
             // 2. build a CreateFileDto from the file metadata
             var fileDto = new CreateFileDto(
-                request.File.FileName,
-                $"{Guid.NewGuid()}{Path.GetExtension(request.File.FileName)}",
-                storageKey,
-                request.File.Length,
-                FileTypeResolver.FromContentType(request.File.ContentType),
-                request.File.ContentType,
-                Path.GetExtension(request.File.FileName),
-                checksum,
+                request.FileName,
+                $"{Guid.NewGuid()}{Path.GetExtension(request.FileName)}",
+                saved.StorageKey,
+                saved.Size,
+                FileTypeResolver.FromContentType(request.ContentType),
+                request.ContentType,
+                Path.GetExtension(request.FileName),
+                saved.Checksum,
                 string.Empty
                 );
 
@@ -49,7 +48,7 @@ public class UploadFileCommandHandler(AppDbContext appDbContext, IFileStorage fi
         catch (Exception ex)
         {
 
-            logger.LogError(ex, "Upload failed for {FileName}", request.File.FileName);
+            logger.LogError(ex, "Upload failed for {FileName}", request.FileName);
 
             // compensate: don't leave an orphaned file in storage
             if (storageKey is not null)

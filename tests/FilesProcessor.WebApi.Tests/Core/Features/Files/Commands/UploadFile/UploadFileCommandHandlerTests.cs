@@ -4,7 +4,6 @@ using FilesProcessor.WebApi.Core.Features.Files.Commands.UploadFile;
 using FilesProcessor.WebApi.Domain.Entities.Enums;
 using FilesProcessor.WebApi.Infrastructure;
 using FilesProcessor.WebApi.Tests.Mocks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -34,15 +33,10 @@ public class UploadFileCommandHandlerTests : IDisposable
         _connection.Dispose();
     }
 
-    private IFormFile GetFormFile()
+    private static UploadFileCommand GetCommand(byte[]? bytes = null)
     {
-        var bytes = Encoding.UTF8.GetBytes("hello world");
-        return new FormFile(
-            new MemoryStream(bytes), 0, bytes.Length, "file", "photo.png")
-        {
-            Headers = new HeaderDictionary(),
-            ContentType = "image/png",
-        };
+        bytes ??= Encoding.UTF8.GetBytes("hello world");
+        return new UploadFileCommand(new MemoryStream(bytes), "photo.png", "image/png");
     }
 
     [Fact]
@@ -53,10 +47,8 @@ public class UploadFileCommandHandlerTests : IDisposable
         var queue = new FakeProcessingQueue();
         var sut = new UploadFileCommandHandler(_db, fake, queue, NullLogger<UploadFileCommandHandler>.Instance);
 
-        var formFile = GetFormFile();
-
         // Act
-        var result = await sut.Handle(new UploadFileCommand(formFile), CancellationToken.None);
+        var result = await sut.Handle(GetCommand(), CancellationToken.None);
 
         // result
         Assert.NotEqual(Guid.Empty, result.Id);
@@ -87,7 +79,7 @@ public class UploadFileCommandHandlerTests : IDisposable
 
         // Assert
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => sut.Handle(new UploadFileCommand(GetFormFile()), CancellationToken.None));
+            () => sut.Handle(GetCommand(), CancellationToken.None));
 
         // Assert
         // storage ran before the DB threw...
@@ -108,18 +100,12 @@ public class UploadFileCommandHandlerTests : IDisposable
             NullLogger<UploadFileCommandHandler>.Instance);
 
         var bytes = Encoding.UTF8.GetBytes("hello world");
-        var formFile = new FormFile(
-            new MemoryStream(bytes), 0, bytes.Length, "file", "photo.png")
-        {
-            Headers = new HeaderDictionary(),
-            ContentType = "image/png",
-        };
 
         // Act
         // expected: SHA-256 of the exact bytes, lowercase hex
         var expected = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
 
-        var result = await sut.Handle(new UploadFileCommand(formFile), CancellationToken.None);
+        var result = await sut.Handle(GetCommand(bytes), CancellationToken.None);
 
         // Assert
         var entity = await _db.Files.FindAsync(result.Id);

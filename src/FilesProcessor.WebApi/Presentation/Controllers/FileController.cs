@@ -5,7 +5,9 @@ using FilesProcessor.WebApi.Core.Features.Files.Queries.GetFileById;
 using FilesProcessor.WebApi.Core.Options.Upload;
 using FilesProcessor.WebApi.Domain.Entities.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 
 namespace FilesProcessor.WebApi.Presentation.Controllers;
@@ -26,19 +28,44 @@ public class FileController(ISender sender, IOptions<UploadOptions> options, ILo
     /// The API acknowledges the upload immediately (202 Accepted);
     /// processing (e.g. generating variants) happens in the background.
     /// </remarks>
-    /// <param name="file">The file to upload.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <response code="202">Upload accepted and queued for processing.</response>
     /// <response code="400">The file is empty or exceeds the maximum allowed size.</response>
     [HttpPost]
-    public async Task<IActionResult> Upload([FromForm] IFormFile file, CancellationToken ct)
+    public async Task<IActionResult> Upload()
     {
-        if (file.Length > _options.MaxFileBytes)
+        var ct = HttpContext.RequestAborted;
+
+        if (!Request.HasFormContentType)
         {
-            return BadRequest("File too large.");
+            return BadRequest("Expected multipart/form-data.");
         }
 
-        var result = await sender.Send(new UploadFileCommand(file), ct);
+        var boundary = Request.GetMultipartBoundary();
+        var reader = new MultipartReader(boundary, Request.Body);
+
+        Stream? content = null;
+        string fileName = "", contentType = "";
+
+        MultipartSection? section;
+        while ((section = await reader.ReadNextSectionAsync(ct)) is not null)
+        {
+            var disposition = section.GetContentDispositionHeader();
+            if (disposition is null || !disposition.FileName.HasValue)
+                continue; // not a file part just skip text fields
+
+            fileName = disposition.FileName.Value;
+            contentType = section.ContentType ?? "application/octet-stream";
+            content = section.Body;
+            break;
+        }
+
+        if (content is null)
+        {
+            return BadRequest("No file part found.");
+        }
+
+        var result = await sender.Send(new UploadFileCommand(content, fileName, contentType), ct);
         return Accepted(result);
     }
 
