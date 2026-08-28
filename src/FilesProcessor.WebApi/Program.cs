@@ -60,6 +60,45 @@ builder.Services.AddOpenApi(options =>
         document.Info.Contact = new OpenApiContact { Name = "Oussama" };
         return Task.CompletedTask;
     });
+
+    // The upload endpoint reads the multipart body manually (MultipartReader),
+    // so MVC never infers a request body for it. Describe it explicitly so
+    // clients like Scalar render a real file picker.
+    options.AddOperationTransformer((operation, context, _) =>
+    {
+        if (context.Description.RelativePath?.Equals("api/File", StringComparison.OrdinalIgnoreCase) != true)
+        {
+            return Task.CompletedTask;
+        }
+
+        operation.RequestBody = new OpenApiRequestBody
+        {
+            Required = true,
+            Description = "Multipart form with a single file part keyed 'file'.",
+            Content = new Dictionary<string, OpenApiMediaType>
+            {
+                ["multipart/form-data"] = new OpenApiMediaType
+                {
+                    Schema = new OpenApiSchema
+                    {
+                        Type = JsonSchemaType.Object,
+                        Properties = new Dictionary<string, IOpenApiSchema>
+                        {
+                            ["file"] = new OpenApiSchema
+                            {
+                                Type = JsonSchemaType.String,
+                                Format = "binary",
+                                Description = "The file to upload."
+                            }
+                        },
+                        Required = new HashSet<string> { "file" }
+                    }
+                }
+            }
+        };
+
+        return Task.CompletedTask;
+    });
 });
 
 // register Infrastructure

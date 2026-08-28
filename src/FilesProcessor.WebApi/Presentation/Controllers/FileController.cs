@@ -28,10 +28,10 @@ public class FileController(ISender sender, IOptions<UploadOptions> options, ILo
     /// The API acknowledges the upload immediately (202 Accepted);
     /// processing (e.g. generating variants) happens in the background.
     /// </remarks>
-    /// <param name="ct">Cancellation token.</param>
     /// <response code="202">Upload accepted and queued for processing.</response>
     /// <response code="400">The file is empty or exceeds the maximum allowed size.</response>
     [HttpPost]
+    [Consumes("multipart/form-data")]
     public async Task<IActionResult> Upload()
     {
         var ct = HttpContext.RequestAborted;
