@@ -1,0 +1,44 @@
+@host = https://localhost:7073
+@fileId = 01a04ee4-b96a-7972-8c59-4100be5dc598
+@token = 00000000-0000-0000-0000-000000000000
+
+### 0. Upload a file first — reuse requests/download.http #0, then paste
+###    the returned id into @fileId above.
+
+### 1. Create a download ticket (should 201 Created)
+###    Copy the returned token into @token above.
+POST {{host}}/api/DownloadTickets
+Content-Type: application/json
+
+{
+  "fileId": "{{fileId}}"
+}
+
+### 2. Create a ticket for a file that doesn't exist (should 404)
+POST {{host}}/api/DownloadTickets
+Content-Type: application/json
+
+{
+  "fileId": "99999999-9999-9999-9999-999999999999"
+}
+
+### 3. Create a ticket with an empty body (should 400)
+POST {{host}}/api/DownloadTickets
+Content-Type: application/json
+
+{}
+
+### 4. Download with a valid ticket (should 200, file content)
+###    Add ?resolution=thumbnail etc. to pull a variant instead.
+GET {{host}}/api/DownloadTickets/{{token}}
+
+### 5. Download with a token that isn't a guid (should 400 from route constraint)
+GET {{host}}/api/DownloadTickets/not-a-guid
+
+### 6. Download with a well-formed but unknown token (should 404)
+GET {{host}}/api/DownloadTickets/99999999-9999-9999-9999-999999999999
+
+### 7. Download with an expired ticket (should 404)
+###    Set "DownloadTickets": { "ValidForMinutes": 1 } in appsettings, create a
+###    ticket via #1, wait a minute+, then hit its token again.
+GET {{host}}/api/DownloadTickets/{{token}}

@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
 
     public DbSet<LocalFile> Files => Set<LocalFile>();
     public DbSet<Variant> Variants => Set<Variant>();
+    public DbSet<DownloadTicket> DownloadTickets => Set<DownloadTicket>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

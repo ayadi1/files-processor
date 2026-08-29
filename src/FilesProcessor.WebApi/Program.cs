@@ -1,5 +1,6 @@
 using FilesProcessor.WebApi.Core.Configurations;
 using FilesProcessor.WebApi.Core.Exceptions.Handlers;
+using FilesProcessor.WebApi.Core.Options.DownloadTickets;
 using FilesProcessor.WebApi.Core.Options.Upload;
 using FilesProcessor.WebApi.Infrastructure;
 using Hangfire;
@@ -26,10 +27,14 @@ builder.Services
         .AddOptions<UploadOptions>()
         .Bind(builder.Configuration.GetSection(UploadOptions.SectionName))
         .ValidateOnStart();
+builder.Services
+        .AddOptions<DownloadTicketOptions>()
+        .Bind(builder.Configuration.GetSection(DownloadTicketOptions.SectionName))
+        .ValidateOnStart();
 
 builder.Services
-        .AddSingleton<IValidateOptions<UploadOptions>, ValidateUploadOptions>();
-builder.Services
+        .AddSingleton<IValidateOptions<UploadOptions>, ValidateUploadOptions>()
+        .AddSingleton<IValidateOptions<DownloadTicketOptions>, ValidateDownloadTicketOptions>()
         .AddSingleton<IConfigureOptions<FormOptions>, ConfigureUploadFormLimits>();
 
 
