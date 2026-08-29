@@ -34,11 +34,11 @@ A backend that can:
 | Area            | Choice                                   |
 | --------------- | ---------------------------------------- |
 | Language        | C# / .NET 10                             |
-| Web framework   | ASP.NET Core Web API (minimal APIs today)|
+| Web framework   | ASP.NET Core Web API Controllers.        |
 | API description | OpenAPI (`Microsoft.AspNetCore.OpenApi`) |
-| Storage         | _to be decided_ (local disk → blob store)|
-| Background work | _to be decided_ (hosted services / queue)|
-| Persistence     | _to be decided_ (EF Core + a DB)         |
+| Storage         | Disk (local disk → blob store).          |
+| Background work | Hangfire (hosted services / queue).       |
+| Persistence     | SQLite.                                  |
 
 Anything marked _to be decided_ is a learning decision the owner will make,
 not something for an AI to fill in.

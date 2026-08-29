@@ -34,9 +34,30 @@ classDiagram
     }
 
     %% ──────────────────────────────────────────────
-    %% Entity: File
+    %% Enum: lifecycle state of a file
     %% ──────────────────────────────────────────────
-    class File {
+    class FileStatus {
+        <<enumeration>>
+        Pending
+        Processing
+        Ready
+        Failed
+    }
+
+    %% ──────────────────────────────────────────────
+    %% Interface: soft-delete contract
+    %% ──────────────────────────────────────────────
+    class ISoftDelete {
+        <<interface>>
+        +DateTime? DeletedAt
+        +bool IsDeleted
+    }
+
+    %% ──────────────────────────────────────────────
+    %% Entity: LocalFile (an uploaded file)
+    %% ──────────────────────────────────────────────
+    class LocalFile {
+        <<entity>>
         +Guid Id
         +string RealFileName
         +string NewFileName
@@ -44,21 +65,23 @@ classDiagram
         +string EncryptionKey
         +long Size
         +FileType Type
-        +string MimeType
+        +FileStatus Status
+        +string MimeTime
         +string Extension
         +string Checksum
-        +Guid? UploadedBy
+        +Guid UploadedBy
         +DateTime CreatedAt
-        +DateTime? UpdatedAt
         +DateTime? DeletedAt
         +bool IsDeleted
         +ICollection~Variant~ Variants
+        +Create(CreateFileDto)$ LocalFile
     }
 
     %% ──────────────────────────────────────────────
-    %% Entity: Variant (a derived/processed version of a File)
+    %% Entity: Variant (a derived/processed version of a LocalFile)
     %% ──────────────────────────────────────────────
     class Variant {
+        <<entity>>
         +Guid Id
         +Guid FileId
         +string FilePath
@@ -67,24 +90,50 @@ classDiagram
         +int Height
         +long Size
         +DateTime CreatedAt
-        +File File
+        +LocalFile File
+    }
+
+    %% ──────────────────────────────────────────────
+    %% Entity: DownloadTicket (short-lived download authorization)
+    %% ──────────────────────────────────────────────
+    class DownloadTicket {
+        <<entity>>
+        +Guid Id
+        +Guid Token
+        +DateTime CreatedAt
+        +DateTime ExpiresAt
+        +Guid FileId
+        +Create(CreateDownloadTicketDto)$ DownloadTicket
     }
 
     %% ──────────────────────────────────────────────
     %% Relationships
     %% ──────────────────────────────────────────────
-    File "1" o-- "0..*" Variant : has
-    File --> FileType : type
+    ISoftDelete <|.. LocalFile : implements
+    LocalFile "1" o-- "0..*" Variant : has
+    DownloadTicket "0..*" --> "1" LocalFile : authorizes download of
     Variant --> Resolution : resolution
-    Variant --> File : belongs to
+    LocalFile --> FileType : type
+    LocalFile --> FileStatus : status
+    Variant --> LocalFile : belongs to
 ```
 
 ## Notes
 
-- **File** holds the metadata of an uploaded, encrypted file. One file can have
-  many **Variants** (e.g. resized images / transcoded renditions).
-- **Variant** references its parent `File` via `FileId` and points to the
+- **LocalFile** holds the metadata of an uploaded, encrypted file (the entity was
+  renamed from `File` to `LocalFile` to avoid clashing with `System.IO.File`).
+  One file can have many **Variants** (e.g. resized images / transcoded
+  renditions). It implements **ISoftDelete** for logical deletion.
+- **Variant** references its parent `LocalFile` via `FileId` and points to the
   physical path of the processed rendition, tagged with a `Resolution`.
+- **DownloadTicket** is a short-lived, token-based authorization to download a
+  file. It expires at `ExpiresAt` and points at its target `LocalFile` via
+  `FileId`.
 - **Resolution** is an `enum` listing the resolutions the processor supports.
-- **FileType** is a small extra enum that classifies the file so the processor
-  can pick the right pipeline (image resizing, video transcoding, etc.).
+- **FileType** classifies the file so the processor can pick the right pipeline
+  (image resizing, video transcoding, etc.). A `FileTypeResolver` static helper
+  maps content types to this enum.
+- **FileStatus** tracks the async processing lifecycle: `Pending` (uploaded,
+  waiting for the worker) → `Processing` → `Ready` (downloadable) or `Failed`.
+- `Create(...)` static factory methods live on `LocalFile` and `DownloadTicket`
+  (each entity has a private constructor to force creation through the factory).
